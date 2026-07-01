@@ -107,6 +107,16 @@ export function liveVoter(config) {
             this.entered = true;
         },
 
+        // Question heading scales down as the text grows so long questions
+        // still fit nicely above the vote buttons.
+        get questionTextSize() {
+            const len = (this.question?.text || '').length;
+            if (len <= 40) return 'text-4xl sm:text-5xl';
+            if (len <= 90) return 'text-3xl sm:text-4xl';
+            if (len <= 160) return 'text-2xl sm:text-3xl';
+            return 'text-xl sm:text-2xl';
+        },
+
         // intro | waiting | open | voted | results | finished
         get screen() {
             if (!this.entered) return 'intro';

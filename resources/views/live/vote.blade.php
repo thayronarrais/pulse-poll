@@ -85,7 +85,9 @@
         <template x-if="screen === 'open'">
             <div class="flex flex-col gap-8 pt-8">
                 <template x-if="question.text">
-                    <h2 class="text-center text-2xl font-bold text-white/90 px-2" x-text="question.text"></h2>
+                    <h2 class="text-center font-extrabold text-white px-2 leading-tight break-words"
+                        :class="questionTextSize"
+                        x-text="question.text"></h2>
                 </template>
                 <template x-for="(choice, idx) in question.choices" :key="choice">
                     <div class="relative">
@@ -127,7 +129,9 @@
         <template x-if="screen === 'voted' || screen === 'results'">
             <div>
                 <template x-if="question.text">
-                    <h2 class="text-center text-2xl font-bold text-white/90 px-2 mb-4" x-text="question.text"></h2>
+                    <h2 class="text-center font-extrabold text-white px-2 leading-tight break-words mb-6"
+                        :class="questionTextSize"
+                        x-text="question.text"></h2>
                 </template>
                 <p class="text-center mb-6 text-white/80 font-medium"
                    x-text="screen === 'results' ? @js(__('live.final_result')) : @js(__('live.vote_registered'))"></p>

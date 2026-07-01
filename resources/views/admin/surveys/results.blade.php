@@ -27,7 +27,12 @@
         </div>
         <div class="w-full md:w-2/4">
             <label class="block text-sm font-medium text-gray-700">{{ __('admin.results.respondent_name') }}</label>
-            <input type="text" name="name" value="{{ request('name') }}" placeholder="{{ __('admin.results.search_by_name') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+            <select name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+                <option value="">{{ __('admin.results.all_respondents') }}</option>
+                @foreach($respondentNames as $respondentName)
+                    <option value="{{ $respondentName }}" @selected(request('name') === $respondentName)>{{ $respondentName }}</option>
+                @endforeach
+            </select>
         </div>
         <div>
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded shadow transition w-full md:w-auto h-10">

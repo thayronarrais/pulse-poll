@@ -6,6 +6,28 @@
     <a href="{{ route('admin.surveys.index') }}" class="text-indigo-600 hover:text-indigo-900 font-medium">{{ __('admin.survey_form.back_to_list') }}</a>
 </div>
 
+{{-- Public link with QR code, same pattern as the live control panel --}}
+<div class="bg-white shadow-sm rounded-lg border border-gray-200 p-4 mb-6" x-data="shareLink(@js(route('surveys.wizard', $survey)))" x-init="makeQr()">
+    <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+        <img x-show="qrSrc" :src="qrSrc" alt="{{ __('admin.surveys.qr_alt') }}" width="160" height="160"
+             class="w-40 h-40 rounded-lg border border-gray-200 bg-white p-2 shadow-sm shrink-0"
+             style="image-rendering: pixelated; display: none;">
+        <div class="min-w-0">
+            <p class="text-sm font-medium text-gray-700 mb-1">{{ __('admin.surveys.public_link') }}</p>
+            <a href="{{ route('surveys.wizard', $survey) }}" target="_blank"
+               class="text-sm text-indigo-600 hover:underline break-all">{{ route('surveys.wizard', $survey) }}</a>
+            <div class="mt-2">
+                <button type="button" @click="copyLink()"
+                        class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-sm transition">
+                    <span x-show="!linkCopied">📋 {{ __('admin.surveys.copy_link') }}</span>
+                    <span x-show="linkCopied" style="display:none;">✓ {{ __('admin.surveys.copied') }}</span>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">{{ __('admin.surveys.qr_hint') }}</p>
+        </div>
+    </div>
+</div>
+
 <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
     <div class="p-6 border-b border-gray-200">
         <h2 class="text-2xl font-bold text-gray-900">{{ $survey->title }}</h2>
