@@ -160,6 +160,7 @@ class LivePollController extends Controller
             'session_status' => $liveSession->status,
             'question' => $question ? [
                 'id' => $question->id,
+                'text' => $question->admin_text,
                 'choice_type' => $question->choice_type,
                 'choices' => $question->choices(),
                 'status' => $question->status,

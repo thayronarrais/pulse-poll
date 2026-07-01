@@ -27,6 +27,7 @@ export function liveVoter(config) {
                 .listen('.question.opened', (e) => {
                     this.question = {
                         id: e.question_id,
+                        text: e.text || null,
                         choice_type: e.choice_type,
                         choices: e.choices,
                         status: 'open',
@@ -36,6 +37,11 @@ export function liveVoter(config) {
                     this.masterPicks = {};
                     this.myChoice = null;
                     this.sessionStatus = 'live';
+                })
+                .listen('.question.text-updated', (e) => {
+                    if (this.question && e.question_id === this.question.id) {
+                        this.question = { ...this.question, text: e.text || null };
+                    }
                 })
                 .listen('.results.updated', (e) => {
                     if (this.question && e.question_id === this.question.id) {

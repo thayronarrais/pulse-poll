@@ -9,7 +9,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class QuestionOpened implements ShouldBroadcastNow
+class QuestionTextUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -27,7 +27,7 @@ class QuestionOpened implements ShouldBroadcastNow
 
     public function broadcastAs(): string
     {
-        return 'question.opened';
+        return 'question.text-updated';
     }
 
     /**
@@ -38,10 +38,6 @@ class QuestionOpened implements ShouldBroadcastNow
         return [
             'question_id' => $this->question->id,
             'text' => $this->question->admin_text,
-            'choice_type' => $this->question->choice_type,
-            'choices' => $this->question->choices(),
-            'order' => $this->question->order,
-            'status' => LiveQuestion::STATUS_OPEN,
         ];
     }
 }

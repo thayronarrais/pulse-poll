@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\LiveSessionStateChanged;
 use App\Events\QuestionClosed;
 use App\Events\QuestionOpened;
+use App\Events\QuestionTextUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\LiveParticipant;
 use App\Models\LiveQuestion;
@@ -126,6 +127,8 @@ class LiveControlController extends Controller
         }
 
         $question->update(['admin_text' => $validator->validated()['admin_text'] ?? null]);
+
+        rescue(fn () => broadcast(new QuestionTextUpdated($question)), report: false);
 
         return response()->json(['id' => $question->id, 'admin_text' => $question->admin_text]);
     }

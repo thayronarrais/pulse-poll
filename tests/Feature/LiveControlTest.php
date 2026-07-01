@@ -5,8 +5,11 @@ namespace Tests\Feature;
 use App\Events\LiveSessionStateChanged;
 use App\Events\QuestionClosed;
 use App\Events\QuestionOpened;
+use App\Events\QuestionTextUpdated;
+use App\Models\LiveParticipant;
 use App\Models\LiveQuestion;
 use App\Models\LiveSession;
+use App\Models\LiveVote;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
@@ -163,6 +166,7 @@ class LiveControlTest extends TestCase
 
     public function test_question_reference_text_can_be_edited(): void
     {
+        Event::fake();
         $owner = User::factory()->create();
         $session = $this->sessionForUser($owner);
         $question = $session->questions()->first();
@@ -173,6 +177,37 @@ class LiveControlTest extends TestCase
             ->assertJson(['admin_text' => 'Aprova a proposta?']);
 
         $this->assertEquals('Aprova a proposta?', $question->fresh()->admin_text);
+        Event::assertDispatched(QuestionTextUpdated::class, fn (QuestionTextUpdated $event) => $event->question->is($question));
+    }
+
+    public function test_editing_question_text_broadcasts_it_to_voters(): void
+    {
+        $owner = User::factory()->create();
+        $session = $this->sessionForUser($owner);
+        $question = $session->questions()->first();
+        $question->update(['admin_text' => 'João estas a ver essa pergunta?']);
+
+        $event = new QuestionTextUpdated($question);
+
+        $this->assertEquals('question.text-updated', $event->broadcastAs());
+        $this->assertEquals([
+            'question_id' => $question->id,
+            'text' => 'João estas a ver essa pergunta?',
+        ], $event->broadcastWith());
+        $this->assertEquals('live-session.'.$session->slug, $event->broadcastOn()[0]->name);
+    }
+
+    public function test_voter_state_includes_question_text(): void
+    {
+        $owner = User::factory()->create();
+        $session = $this->sessionForUser($owner);
+        $question = $session->questions()->first();
+        $question->update(['status' => LiveQuestion::STATUS_OPEN, 'admin_text' => 'Aprova a proposta?']);
+        $session->update(['status' => LiveSession::STATUS_LIVE, 'current_question_id' => $question->id]);
+
+        $this->getJson(route('live.state', $session))
+            ->assertOk()
+            ->assertJsonPath('question.text', 'Aprova a proposta?');
     }
 
     public function test_control_panel_renders(): void
@@ -233,12 +268,12 @@ class LiveControlTest extends TestCase
         $session = $this->sessionForUser($owner);
         $question = $session->questions()->first();
 
-        $participant = \App\Models\LiveParticipant::create([
+        $participant = LiveParticipant::create([
             'live_session_id' => $session->id,
             'device_token' => 'tok-1',
             'name' => 'João',
         ]);
-        \App\Models\LiveVote::create([
+        LiveVote::create([
             'live_question_id' => $question->id,
             'device_token' => 'tok-1',
             'choice' => 'A',
