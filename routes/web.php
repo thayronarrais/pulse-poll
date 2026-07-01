@@ -4,20 +4,16 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route(auth()->check() ? 'admin.live-sessions.index' : 'login');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {
-    if (in_array($locale, \App\Http\Middleware\SetLocale::SUPPORTED_LOCALES, true)) {
+    if (in_array($locale, SetLocale::SUPPORTED_LOCALES, true)) {
         session(['locale' => $locale]);
     }
 
     return redirect()->back();
 })->name('locale.switch');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -33,6 +29,7 @@ use App\Http\Controllers\Admin\SurveyController;
 use App\Http\Controllers\Admin\SurveyResultController;
 use App\Http\Controllers\LivePollController;
 use App\Http\Controllers\SurveyWizardController;
+use App\Http\Middleware\SetLocale;
 
 Route::get('/s/{survey}', [SurveyWizardController::class, 'show'])->name('surveys.wizard');
 Route::post('/s/{survey}/submit', [SurveyWizardController::class, 'submit'])->name('surveys.submit');
@@ -47,7 +44,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('surveys', SurveyController::class);
     Route::get('surveys/{survey}/results', [SurveyResultController::class, 'index'])->name('surveys.results');
 
-    Route::post('surveys/{survey}/responses/{response}/toggle-highlight', function() {
+    Route::post('surveys/{survey}/responses/{response}/toggle-highlight', function () {
         return response()->json(['hello' => 'world']);
     })->name('surveys.responses.toggle-highlight');
 
